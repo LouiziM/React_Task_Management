@@ -106,7 +106,7 @@ const TachesParEntete = ({enteteId}) => {
             align: "center",
             headerClassName: 'bold-weight',
             renderCell: ({ row }) => {
-                const formattedDate = dayjs(row.HDebut).subtract(1, 'hour').format('YYYY-MM-DD [à] HH:mm');//here is how you substract one hour
+                const formattedDate = dayjs(row.HDebut).subtract(2, 'hour').format('YYYY-MM-DD [à] HH:mm');//here is how you substract one hour
                 return <CustomTooltip title={formattedDate}>{formattedDate}</CustomTooltip>;
               }
         },
@@ -117,7 +117,7 @@ const TachesParEntete = ({enteteId}) => {
             align: "center",
             headerClassName: 'bold-weight',
             renderCell: ({ row }) => {
-                const formattedDate = dayjs(row.HFin).subtract(1, 'hour').format('YYYY-MM-DD [à] HH:mm');//here is how you substract one hour
+                const formattedDate = dayjs(row.HFin).subtract(2, 'hour').format('YYYY-MM-DD [à] HH:mm');//here is how you substract one hour
                 return <CustomTooltip title={formattedDate}>{formattedDate}</CustomTooltip>;
               }
         },
