@@ -12,7 +12,7 @@ import {
   Select,
   FormControl,
   InputLabel,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import {
   useCreateDetailsTacheMutation,
@@ -20,6 +20,7 @@ import {
   useDeleteEnteteTacheMutation,
   useGetAllTachesQuery
 } from '../../../features/tacheApiSlice';
+import SnackbarComponent from 'components/misc/snackBar';
 
 const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
   const theme = useTheme();
@@ -28,8 +29,7 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
   const mutationHook =
     variant === 'ajouter' ? useCreateDetailsTacheMutation : useUpdateDetailTacheMutation;
   const [mutateTache, { isLoading }] = mutationHook();
-  console.log("tachetachetache",tache)
-  // State for task fields and time error
+
   const [taskFields, setTaskFields] = useState({
     EnteteTacheID: tache && tache.EnteteTacheID ? tache.EnteteTacheID : '',
     tache: '',
@@ -42,19 +42,17 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
     id: '',
     baseDate: ''
   });
-  
-  const [timeError, setTimeError] = useState('');
 
-  // Initialize baseDate2 based on tache.DateOperation
+  const [timeError, setTimeError] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   const baseDate2 = tache && tache.DateOperation ? new Date(tache.DateOperation).toISOString().substr(0, 10) : '';
 
-  // Effect to update taskFields when tache changes
   useEffect(() => {
     if (tache) {
       const baseDate = baseDate2;
       setTaskFields(prevFields => ({
         ...prevFields,
-        
         tache: tache.LibelleTache || '',
         heureDebut: tache.HDebut ? new Date(tache.HDebut).toISOString().substr(11, 5) : '',
         heureFin: tache.HFin ? new Date(tache.HFin).toISOString().substr(11, 5) : '',
@@ -64,13 +62,11 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
         remarques: tache.DetailRemarques || '',
         id: tache.DetailsTacheID || '',
         baseDate,
-        EnteteTacheID:tache?.EnteteTacheID|| '',
-        
+        EnteteTacheID: tache?.EnteteTacheID || '',
       }));
     }
   }, [tache, baseDate2]);
 
-  // Function to calculate minutes difference between two times
   const calculateMinutesDifference = (startTime, endTime) => {
     if (!startTime || !endTime) return 0;
     const start = new Date(baseDate2 + `T${startTime}:00Z`);
@@ -79,7 +75,6 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
     return Math.max(0, Math.floor(diffMs / 60000));
   };
 
-  // Function to validate start and end times
   const validateTimes = (startTime, endTime) => {
     if (!startTime || !endTime) return true;
     const start = new Date(baseDate2 + `T${startTime}:00Z`);
@@ -92,7 +87,6 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
     return true;
   };
 
-  // Handle change in task fields
   const handleTaskChange = e => {
     const { name, value } = e.target;
     setTaskFields(prevFields => ({
@@ -101,7 +95,6 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
     }));
   };
 
-  // Handle task selection change
   const handleTaskSelectChange = e => {
     const value = e.target.value;
     const selectedTask = taches.find(t => t.LibelleTache === value);
@@ -127,7 +120,6 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
     }
   };
 
-  // Handle deletion of task
   const handleDelete = id => {
     deleteEnteteTache(id)
       .unwrap()
@@ -139,42 +131,42 @@ const AssignTaskDialog = ({ open, onClose, tache, variant }) => {
       });
   };
 
-  // Handle blur event on end time
   const handleHeureFinBlur = () => {
     if (!validateTimes(taskFields.heureDebut, taskFields.heureFin)) {
       // Handle validation error if needed
     }
   };
 
-  // Handle form submission
-// Handle form submission
-const handleSubmit = () => {
-  const selectedTask = taches.find(t => t.LibelleTache === taskFields.tache);
+  const handleSubmit = () => {
+    const selectedTask = taches.find(t => t.LibelleTache === taskFields.tache);
 
-  if (!selectedTask) {
-    console.error("Selected task not found in taches array");
-    return;
-  }
+    if (!selectedTask) {
+      console.error("Selected task not found in taches array");
+      return;
+    }
 
-  const updatedTask = {
-    DetailsTacheID: taskFields.id,
-    EnteteTacheID: taskFields.EnteteTacheID,
-    TacheID: selectedTask.TacheID, 
-    HDebut: `${baseDate2}T${taskFields.heureDebut}:00.000Z`,
-    HFin: `${baseDate2}T${taskFields.heureFin}:00.000Z`,
-    TempsDiff: taskFields.tempsDifference,
-    DetailCoefficient: taskFields.coefficient,
-    PrixCalc: taskFields.prixCalcule,
-    DetailRemarques: taskFields.remarques,
+    const updatedTask = {
+      DetailsTacheID: taskFields.id,
+      EnteteTacheID: taskFields.EnteteTacheID,
+      TacheID: selectedTask.TacheID,
+      HDebut: `${baseDate2}T${taskFields.heureDebut}:00.000Z`,
+      HFin: `${baseDate2}T${taskFields.heureFin}:00.000Z`,
+      TempsDiff: taskFields.tempsDifference,
+      DetailCoefficient: taskFields.coefficient,
+      PrixCalc: taskFields.prixCalcule,
+      DetailRemarques: taskFields.remarques,
+    };
+
+    mutateTache(updatedTask).then(() => {
+      setSnackbarOpen(true); // Open Snackbar on successful update
+      onClose(); // Close dialog after successful mutation
+    });
   };
 
-  mutateTache(updatedTask).then(() => {
-    onClose();
-  });
-};
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
 
-
-  // Effect to recalculate time difference and price when start or end time changes
   useEffect(() => {
     if (taskFields.heureDebut && taskFields.heureFin && taskFields.coefficient) {
       if (validateTimes(taskFields.heureDebut, taskFields.heureFin)) {
@@ -192,127 +184,138 @@ const handleSubmit = () => {
   const title = variant === 'ajouter' ? "Assigner Une Tâche" : "Modifier la Tâche";
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} mt={2}>
-            <FormControl fullWidth>
-              <InputLabel id="tache-label">Tâche</InputLabel>
-              <Select
-                labelId="tache-label"
-                id="tache-select"
-                value={taskFields.tache}
-                onChange={handleTaskSelectChange}
-                label="Tâche"
-              >
-                {taches.length > 0 ? (
-                  taches.map(t => (
-                    <MenuItem key={t.id} value={t.LibelleTache}>
-                      {t.LibelleTache}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem value="" disabled>Aucune tâche disponible</MenuItem>
-                )}
-              </Select>
-            </FormControl>
+    <>
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>{title}</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} mt={2}>
+              <FormControl fullWidth>
+                <InputLabel id="tache-label">Tâche</InputLabel>
+                <Select
+                  labelId="tache-label"
+                  id="tache-select"
+                  value={taskFields.tache}
+                  onChange={handleTaskSelectChange}
+                  label="Tâche"
+                >
+                  {taches.length > 0 ? (
+                    taches.map(t => (
+                      <MenuItem key={t.id} value={t.LibelleTache}>
+                        {t.LibelleTache}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem value="" disabled>Aucune tâche disponible</MenuItem>
+                  )}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="heureDebut"
+                label="Heure Début"
+                type="time"
+                value={taskFields.heureDebut}
+                onChange={handleTaskChange}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 300 }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="heureFin"
+                label="Heure Fin"
+                type="time"
+                value={taskFields.heureFin}
+                onChange={handleTaskChange}
+                onBlur={handleHeureFinBlur}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 300 }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="tempsDifference"
+                label="Durée"
+                value={taskFields.tempsDifference !== undefined ? `${taskFields.tempsDifference} min` : '-'}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="coefficient"
+                label="Coefficient"
+                value={taskFields.coefficient}
+                onChange={handleTaskChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="prixCalcule"
+                label="Prix Calculé"
+                value={taskFields.prixCalcule}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="remarques"
+                label="Remarques"
+                value={taskFields.remarques}
+                onChange={handleTaskChange}
+                fullWidth
+                multiline
+                rows={4}
+              />
+            </Grid>
+            {timeError && (
+              <Typography color="error" mt={2}>
+                {timeError}
+              </Typography>
+            )}
           </Grid>
-          <Grid item xs={6}>
-            <TextField
-              name="heureDebut"
-              label="Heure Début"
-              type="time"
-              value={taskFields.heureDebut}
-              onChange={handleTaskChange}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ step: 300 }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              name="heureFin"
-              label="Heure Fin"
-              type="time"
-              value={taskFields.heureFin}
-              onChange={handleTaskChange}
-              onBlur={handleHeureFinBlur}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ step: 300 }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              name="tempsDifference"
-              label="Durée"
-              value={taskFields.tempsDifference !== undefined ? `${taskFields.tempsDifference} min` : '-'}
-              fullWidth
-              disabled
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              name="coefficient"
-              label="Coefficient"
-              value={taskFields.coefficient}
-              onChange={handleTaskChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="prixCalcule"
-              label="Prix Calculé"
-              value={taskFields.prixCalcule}
-              fullWidth
-              disabled
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="remarques"
-              label="Remarques"
-              value={taskFields.remarques}
-              onChange={handleTaskChange}
-              fullWidth
-              multiline
-              rows={4}
-            />
-          </Grid>
-          {timeError && (
-            <Typography color="error" mt={2}>
-              {timeError}
-            </Typography>
-          )}
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={handleSubmit}
-          color="primary"
-          variant="contained"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Enregistrement...' : 'Enregistrer'}
-        </Button>
-        <Button
-          onClick={onClose}
-          sx={{
-            backgroundColor: theme.palette.red.first,
-            color: theme.palette.white.first,
-            fontWeight: 'bold',
-            '&:hover': {
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleSubmit}
+            color="primary"
+            variant="contained"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Enregistrement...' : 'Enregistrer'}
+          </Button>
+          <Button
+            onClick={onClose}
+            sx={{
               backgroundColor: theme.palette.red.first,
-              color: theme.palette.white.first
-            }
-          }}
-        >
-          Annuler
-        </Button>
-      </DialogActions>
-    </Dialog>
+              color: theme.palette.white.first,
+              fontWeight: 'bold',
+              '&:hover': {
+                backgroundColor: theme.palette.red.first,
+                color: theme.palette.white.first
+              }
+            }}
+          >
+            Annuler
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar for edit success */}
+      <SnackbarComponent
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        handleClose={handleCloseSnackbar}
+        message="Édition de tâche réussie!"
+
+      />
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Grid, Typography, Divider, Dialog, DialogContent, IconButton, DialogActions, DialogTitle, Button } from '@mui/material';
-import { Print as PrintIcon, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Print as PrintIcon, Edit , Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { jsPDF } from 'jspdf';
 
@@ -237,10 +237,27 @@ const TaskDetailsComponent = ({ open, onClose, taskData, theme }) => {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">
+                    <Button onClick={() => setConfirmDeleteOpen(false)}  sx={{
+              backgroundColor: theme.palette.blue.first,
+              color: theme.palette.white.first,
+              fontWeight: 'bold',
+              '&:hover': {
+                backgroundColor: theme.palette.blue.first,
+                color: theme.palette.white.first
+              }
+            }}>
                         Annuler
                     </Button>
-                    <Button onClick={handleDelete} color="secondary">
+                    <Button onClick={handleDelete} color="secondary"
+                      sx={{
+                        backgroundColor: theme.palette.red.first,
+                        color: theme.palette.white.first,
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: theme.palette.red.first,
+                          color: theme.palette.white.first
+                        }
+                      }}>
                         Supprimer
                     </Button>
                 </DialogActions>
