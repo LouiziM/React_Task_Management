@@ -31,7 +31,7 @@ const PieForDay = () => {
                     style={{ borderRadius: '15px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)' }}
                 >
                     <Typography variant="h5" fontWeight="bold" gutterBottom>
-                        Distribution des taches
+                        Etat des taches
                     </Typography>
                     <hr style={{ border: `1px solid `, width: '100%' }} />
                     <ResponsivePie

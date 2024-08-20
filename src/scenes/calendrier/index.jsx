@@ -67,10 +67,10 @@ const Calendrier = () => {
     <Box m="20px">
       <Box display="flex" justifyContent="space-between">
         <Grid container spacing={2}>
-          <Grid item xs={3.5}>
+          <Grid item xs={12} sm={12} md={12} lg={3.5}>
           <Typography variant="h5" mb={2} ml={2}>Événements :</Typography>
 
-            <Box backgroundColor={'white'} p="15px" borderRadius="4px" sx={{ overflowY: 'scroll',
+            <Box backgroundColor={'white'} p="15px" borderRadius="4px" sx={{minWidth:"320px", overflowY: 'scroll',
             maxHeight: '500px',}}>
               <Box>
                 {tasksForTheDay.map((event) => (
@@ -79,7 +79,7 @@ const Calendrier = () => {
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={8.5}>
+          <Grid item xs={12} sm={12} md={12} lg={8.5}>
             <Box ml="15px">
               <Calendar
                 localizer={localizer}
@@ -90,6 +90,17 @@ const Calendrier = () => {
                 selectable
                 onSelectSlot={handleSelectSlot}
                 onSelectEvent={handleSelectEvent}
+                culture="fr"
+
+                 messages={{
+                  next: 'Suiv',
+                  previous: 'Préc',
+                  today: 'Aujourd\'hui',
+                  month: 'Mois',
+                  week: 'Semaine',
+                  day: 'Jour',
+                 
+                }}
               />
             </Box>
           </Grid>

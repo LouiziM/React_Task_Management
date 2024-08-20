@@ -52,15 +52,8 @@ const TaskDetailsComponent = ({ open, onClose, taskData, theme }) => {
             >
 
                 <DialogTitle sx={{ bgcolor: theme.palette.blue.first, color: theme.palette.white.first }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Box display="flex">
-                            <IconButton color="inherit" onClick={handlePrint}>
-                                <PrintIcon />
-                            </IconButton>
-                            <IconButton color="inherit" onClick={() => setConfirmDeleteOpen(true)}>
-                                <DeleteIcon />
-                            </IconButton>
-                        </Box>
+                    <Box display="flex" justifyContent="right" alignItems="center">
+                        
                         <IconButton color="inherit" onClick={onClose}>
                             <CloseIcon />
                         </IconButton>

@@ -30,7 +30,7 @@ const TaskPurcentagesPie = () => {
                     style={{ borderRadius: '15px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)' }}
                 >
                     <Typography variant="h5" fontWeight="bold" gutterBottom>
-                        Etat des taches
+                    Distribution des taches
                     </Typography>
                     <hr style={{ border: `1px solid `, width: '100%' }} />
                     <ResponsivePie

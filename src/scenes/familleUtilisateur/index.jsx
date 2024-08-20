@@ -20,8 +20,8 @@ dayjs.extend(utc);
 
 const exportToPDF = (row) => {
   const doc = new jsPDF();
-  doc.text("Utilisateur", 20, 20);
-  doc.text("Détails de l'utilisateur", 20, 30);
+  doc.text("Famille", 20, 20);
+  doc.text("Détails de la famille utilisateur", 20, 30);
   doc.autoTable({
     startY: 40,
     head: [['Famille', 'Coefficient', 'Remarques']],
@@ -35,7 +35,7 @@ const exportToPDF = (row) => {
 
 const exportAllToPDF = (rows) => {
   const doc = new jsPDF();
-  doc.text("Liste des Utilisateurs", 20, 20);
+  doc.text("Liste des Familles utilisateurs", 20, 20);
   doc.autoTable({
     startY: 30,
     head: [['Famille', 'Coefficient', 'Remarques']],
@@ -48,7 +48,7 @@ const exportAllToHTML = (rows) => {
   const htmlContent = `
     <html>
       <head>
-        <title>Liste des Utilisateurs</title>
+        <title>Liste des Familles utilisateurs</title>
         <style>
           table { width: 100%; border-collapse: collapse; }
           th, td { border: 1px solid black; padding: 8px; text-align: left; }
@@ -56,7 +56,7 @@ const exportAllToHTML = (rows) => {
         </style>
       </head>
       <body>
-        <h2>Liste des Utilisateurs</h2>
+        <h2>Liste des Familles utilisateurs</h2>
         <table>
           <tr><th>Famille</th><th>Coefficient</th><th>Remarques</th></tr>
           ${rows.map(row => `
@@ -78,12 +78,25 @@ const exportAllToHTML = (rows) => {
 };
 
 const exportAllToCSV = (rows) => {
+  // Ensure the data structure matches the fields
+  const formattedRows = rows.map(row => ({
+    LibelleFamille: row.LibelleFamille,
+    Coefficient: row.Coefficient,
+    Remarques: row.Remarques
+  }));
+
   const fields = ['LibelleFamille', 'Coefficient', 'Remarques'];
-  const opts = { fields };
-  const csv = parse(rows, opts);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  saveAs(blob, 'utilisateurs_details.csv');
+  const opts = { fields, delimiter: ';'  };
+  
+  try {
+    const csv = parse(formattedRows, opts);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'familles_details.csv');
+  } catch (err) {
+    console.error('Error exporting to CSV:', err);
+  }
 };
+
 
 const FamilyManagement = () => {
   const theme = useTheme();
@@ -98,7 +111,8 @@ const FamilyManagement = () => {
     severity: 'success',
     message: '',
   });
-
+  
+  
   const onHandleNormalError = (errorMessage) => {
     setSnackbarState({
       open: true,
@@ -137,9 +151,13 @@ const FamilyManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const family = { ...familyData };
+    const { LibelleFamille, Coefficient, Remarques } = familyData;
+    if (!LibelleFamille || !Coefficient || !Remarques) {
+      onHandleNormalError("Tous les champs doivent être remplis.");
+      return;
+    }
     try {
-      const res = await createFamily(family);
+      const res = await createFamily(familyData);
       if (res?.data?.message) {
         onHandleNormalSuccess(res?.data?.message);
         setFamilyData(initialFamily);
@@ -150,13 +168,17 @@ const FamilyManagement = () => {
     } catch (error) {
       onHandleNormalError("An error occurred while creating the family");
     }
-  }
+  };
 
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
+    const { LibelleFamille, Coefficient, Remarques } = familyData;
+    if (!LibelleFamille || !Coefficient || !Remarques) {
+      onHandleNormalError("Tous les champs doivent être remplis.");
+      return;
+    }
     try {
-      const family = { ...familyData };
-      const res = await updateFamily(family);
+      const res = await updateFamily(familyData);
       if (res?.data?.message) {
         onHandleNormalSuccess(res?.data?.message);
         setFamilyData(initialFamily);
@@ -168,7 +190,7 @@ const FamilyManagement = () => {
     } catch (error) {
       onHandleNormalError("An error occurred while updating the family");
     }
-  }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -194,7 +216,7 @@ const FamilyManagement = () => {
     { field: 'Coefficient', headerName: 'Coefficient', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Coefficient}>{row.Coefficient}</CustomTooltip>) },
     { field: 'Remarques', headerName: 'Remarques', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Remarques}>{row.Remarques}</CustomTooltip>) },
     {
-      field: 'actions', headerName: 'Actions', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (
+      field: 'actions', headerName: 'Actions', width:130, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (
         <>
           <Tooltip title="Modifier la famille" placement="top">
             <IconButton onClick={() => {

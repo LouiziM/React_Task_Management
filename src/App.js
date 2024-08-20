@@ -20,6 +20,7 @@ import TachesManagement from 'scenes/Taches';
 import Calendrier from 'scenes/calendrier';
 import GestionTaches from 'scenes/gestion_taches';
 import TableauDeBord from 'scenes/tableau_de_bord/tableauDeBord';
+import AjouterAffectation from 'scenes/affectation/ajouterAffectation';
 
 
 function App() {
@@ -54,13 +55,14 @@ function App() {
                     <Route path="/calendrier" element={<Calendrier />} />
                     <Route path="/gestion-taches" element={<GestionTaches />} />
                     <Route path="/tableau-de-bord" element={<TableauDeBord />} />
-
+                    <Route path="/ajouter-une-affectation" element={<AjouterAffectation/>} />
                     
                   </>
                 }
               </Route>
+              <Route path="/*" element={<NotFound />} />
+
             </Route>
-            <Route path="/*" element={<NotFound />} />
 
           </Routes>
 

@@ -25,7 +25,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import GroupsIcon from '@mui/icons-material/Groups';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 const Sidebar = ({
   drawerWidth,
@@ -77,13 +77,21 @@ const Sidebar = ({
       canAccess: true,
       icon: <AssignmentIcon sx={{ color: theme.palette.white.first }} />,
     },
-    
+    {
+      text: "Ajouter une affectation",
+      link: "/ajouter-une-affectation",
+      canAccess: isAdmin(user),
+      icon: <AddCircleOutlineIcon sx={{ color: theme.palette.white.first }} />,
+    },
     {
       text: "Gestion des tâches",
       link: "/gestion-taches",
       canAccess: isAdmin(user),
       icon: <PlaylistAddCheckIcon sx={{ fontSize:"28px",color: theme.palette.white.first }} />,
-    },
+    },  
+    
+   
+   
   ];
 
   useEffect(() => {

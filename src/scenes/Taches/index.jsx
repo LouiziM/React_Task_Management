@@ -169,23 +169,30 @@ const TachesManagement = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        if (editTache) {
-            try {
+    
+        // Check if all fields are non-null
+        const { LibelleTache, Coefficient, Remarques } = tacheData;
+        if (!LibelleTache || !Coefficient || !Remarques) {
+            // Show an error message if any field is empty
+            onHandleNormalError('Tous les champs doivent être remplis.');
+            return;
+        }
+    
+        try {
+            if (editTache) {
                 await updateTache(tacheData).unwrap();
                 onHandleNormalSuccess('Tâche mise à jour avec succès');
-            } catch (error) {
-                onHandleNormalError('Erreur lors de la mise à jour de la tâche');
-            }
-        } else {
-            try {
+            } else {
                 await createTache(tacheData).unwrap();
                 onHandleNormalSuccess('Tâche ajoutée avec succès');
-            } catch (error) {
-                onHandleNormalError('Erreur lors de l\'ajout de la tâche');
             }
+        } catch (error) {
+            onHandleNormalError(editTache ? 'Erreur lors de la mise à jour de la tâche' : 'Erreur lors de l\'ajout de la tâche');
+        } finally {
+            setOpenModal(false);
         }
-        setOpenModal(false);
     };
+    
 
     const columns = [
         {
@@ -227,7 +234,7 @@ const TachesManagement = () => {
         {
             field: 'actions',
             headerName: 'Actions',
-            flex: 1,
+            width:130,
             sortable: false,
             align: "center",
             disableColumnMenu: true,
@@ -302,6 +309,7 @@ const TachesManagement = () => {
                                 id="LibelleTache"
                                 label="Libellé"
                                 type="text"
+                                required
                                 fullWidth
                                 value={tacheData.LibelleTache}
                                 onChange={handleChangeLibelleTache}
@@ -311,6 +319,7 @@ const TachesManagement = () => {
                                 id="Coefficient"
                                 label="Coefficient"
                                 type="text"
+                                required
                                 fullWidth
                                 value={tacheData.Coefficient}
                                 onChange={handleChangeCoefficient}
@@ -320,6 +329,7 @@ const TachesManagement = () => {
                                 id="Remarques"
                                 label="Remarques"
                                 type="text"
+                                required
                                 fullWidth
                                 value={tacheData.Remarques}
                                 onChange={handleChangeRemarques}
@@ -388,3 +398,6 @@ function QuickSearchToolbar() {
         </Box>
     );
 }
+
+
+ 

@@ -61,10 +61,16 @@ const exportAllToPDF = (rows) => {
     doc.autoTable({
         startY: 30,
         head: [['Libellé Journée', 'Date d\'Opération', 'Remarques', 'Utilisateur']],
-        body: rows.map(row => [row.LibelleJournee, row.DateOperation, row.Remarques, row.Utilisateur])
+        body: rows.map(row => [
+            row.LibelleJournee,
+            row.DateOperation,
+            row.Remarques,
+            row.UtilisateurNom  
+        ])
     });
     doc.save(`taches_details.pdf`);
 };
+
 
 const exportAllToHTML = (rows) => {
     const htmlContent = `
@@ -86,7 +92,7 @@ const exportAllToHTML = (rows) => {
               <td>${row.LibelleJournee}</td>
               <td>${row.DateOperation}</td>
               <td>${row.Remarques}</td>
-              <td>${row.Utilisateur}</td>
+              <td>${row.UtilisateurNom}</td>
             </tr>
           `).join('')}
         </table>
@@ -100,13 +106,15 @@ const exportAllToHTML = (rows) => {
     link.click();
 };
 
+
 const exportAllToCSV = (rows) => {
-    const fields = ['LibelleJournee', 'DateOperation', 'Remarques', 'Utilisateur'];
-    const opts = { fields };
+    const fields = ['LibelleJournee', 'DateOperation', 'Remarques', 'UtilisateurNom']; 
+  const opts = { fields, delimiter: ';' };
     const csv = parse(rows, opts);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     saveAs(blob, 'taches_details.csv');
 };
+
 
 const GestionTaches = () => {
     const theme = useTheme();
@@ -266,7 +274,7 @@ const GestionTaches = () => {
         { field: 'Remarques', headerName: 'Remarques', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Remarques}>{row.Remarques}</CustomTooltip>) },
         { field: 'Utilisateur', headerName: 'Utilisateur', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.UtilisateurNom}>{row.UtilisateurNom}</CustomTooltip>) },
         {
-            field: 'actions', headerName: 'Actions', flex: 1, align: 'center', headerClassName: 'bold-weight',
+            field: 'actions', headerName: 'Actions', width:190, align: 'center', headerClassName: 'bold-weight',
             renderCell: ({ row }) => (
                 <Box display="flex" justifyContent="center">
                     <Tooltip title="Editer">
@@ -324,19 +332,7 @@ const GestionTaches = () => {
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <Box mb={2} display="flex" justifyContent="space-between">
-                        <Box>
-                            <Button variant="contained" color="primary"
-                                sx={{
-                                    backgroundColor: theme.palette.blue.first,
-                                    color: theme.palette.white.first,
-                                    fontWeight: 'bold',
-                                    '&:hover': {
-                                        backgroundColor: theme.palette.blue.first,
-                                        color: theme.palette.white.first
-                                    }
-                                }}
-                                onClick={() => setOpenModal(true)}>Ajouter une Entete Tâche</Button>
-                        </Box>
+                       
                         <Box>
                             <Button variant="contained" color="secondary" onClick={() => exportAllToPDF(entetestaches)}>Exporter PDF</Button>
                             <Button variant="contained" color="secondary" sx={{ marginLeft: '15px' }} onClick={() => exportAllToHTML(entetestaches)}>Exporter HTML</Button>
@@ -389,7 +385,7 @@ const GestionTaches = () => {
                             label="Date d'Opération"
                             type="date"
                             variant="outlined"
-                            value={dayjs(tacheData.DateOperation).format('YYYY-MM-DD')}
+                            value={tacheData.DateOperation}
                             onChange={handleChangeDateOperation}
                             required
                             InputLabelProps={{ shrink: true }}

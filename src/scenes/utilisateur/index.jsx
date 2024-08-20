@@ -161,9 +161,23 @@ const UtilisateurManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const utilisateur = { ...utilisateurData };
+    const { Nom, Age, Email, FamilleUtilisateurID } = utilisateurData;
+  
+    // Simple regex for email validation
+    const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    
+    if (!Nom || !Age || !Email || !FamilleUtilisateurID) {
+      onHandleNormalError("Tous les champs doivent être remplis.");
+      return;
+    }
+    
+    if (!emailPattern.test(Email)) {
+      onHandleNormalError("Adresse email invalide.");
+      return;
+    }
+    
     try {
-      const res = await createUtilisateur(utilisateur);
+      const res = await createUtilisateur(utilisateurData);
       if (res?.data?.message) {
         onHandleNormalSuccess(res?.data?.message);
         setUtilisateurData(initialUtilisateur);
@@ -174,13 +188,20 @@ const UtilisateurManagement = () => {
     } catch (error) {
       onHandleNormalError("An error occurred while creating the utilisateur");
     }
-  }
-
+  };
+  
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
+    const { Nom, Age, Email, FamilleUtilisateurID } = utilisateurData;
+
+    // Check if all required fields are filled
+    if (!Nom || !Age || !Email || !FamilleUtilisateurID) {
+      onHandleNormalError("Tous les champs doivent être remplis.");
+      return;
+    }
+
     try {
-      const utilisateur = { ...utilisateurData };
-      const res = await updateUtilisateur(utilisateur);
+      const res = await updateUtilisateur(utilisateurData);
       if (res?.data?.message) {
         onHandleNormalSuccess(res?.data?.message);
         setUtilisateurData(initialUtilisateur);
@@ -192,7 +213,7 @@ const UtilisateurManagement = () => {
     } catch (error) {
       onHandleNormalError("An error occurred while updating the utilisateur");
     }
-  }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -377,7 +398,21 @@ const UtilisateurManagement = () => {
                 <TextField fullWidth required variant="outlined" id="Age" name="Age" label="Age" value={utilisateurData.Age || ''} onChange={handleChangeAge} />
               </Grid>
               <Grid item xs={12}>
-                <TextField fullWidth required variant="outlined" id="Email" name="Email" label="Email" value={utilisateurData.Email || ''} onChange={handleChangeEmail} />
+                <TextField
+                  fullWidth
+                  required
+                  variant="outlined"
+                  id="Email"
+                  name="Email"
+                  label="Email"
+                  type="email"
+                  value={utilisateurData.Email || ''}
+                  onChange={handleChangeEmail}
+                  inputProps={{
+                    pattern: "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$",
+                  }}
+                  helperText="Veuillez entrer une adresse email valide."
+                />
               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth margin="dense">
