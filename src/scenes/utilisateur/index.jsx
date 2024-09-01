@@ -27,7 +27,7 @@ const exportToPDF = (row) => {
   doc.autoTable({
     startY: 40,
     head: [['Nom', 'Age', 'Email', 'Famille']],
-    body: [[row.Nom, row.Age, row.Email, row.FamilleUtilisateurID]]
+    body: [[row.Nom, row.Age, row.Email, row.LibelleFamille]]
   });
   doc.text("Signature", 20, doc.lastAutoTable.finalY + 30);
   doc.text("Date", 150, doc.lastAutoTable.finalY + 30);
@@ -42,7 +42,7 @@ const exportAllToPDF = (rows) => {
   doc.autoTable({
     startY: 30,
     head: [['Nom', 'Age', 'Email', 'Famille']],
-    body: rows.map(row => [row.Nom, row.Age, row.Email, row.FamilleUtilisateurID])
+    body: rows.map(row => [row.Nom, row.Age, row.Email, row.LibelleFamille])
   });
   doc.save(`utilisateurs_details.pdf`);
 };
@@ -67,7 +67,7 @@ const exportAllToHTML = (rows) => {
               <td>${row.Nom}</td>
               <td>${row.Age}</td>
               <td>${row.Email}</td>
-              <td>${row.FamilleUtilisateurID}</td>
+              <td>${row.LibelleFamille}</td>
             </tr>
           `).join('')}
         </table>
@@ -110,7 +110,7 @@ const UtilisateurManagement = () => {
   const [editUtilisateur, setEditUtilisateur] = useState(false);
   const [utilisateurData, setUtilisateurData] = useState(initialUtilisateur);
   const { data: familles = [] } = useGetAllFamiliesQuery();
-  console.log(familles)
+  console.log("familles",familles)
   const [openModal, setOpenModal] = useState(false);
   const { data: utilisateurs = [], isLoading, error } = useGetAllUtilisateursQuery();
   const [snackbarState, setSnackbarState] = useState({
@@ -281,79 +281,64 @@ const UtilisateurManagement = () => {
   return (
     <div theme={theme}>
       <Grid container spacing={0}>
-        <Grid item xs={12}>
-          <Button
-            onClick={handleOpenModal}
-            variant="contained"
-            sx={{
-              backgroundColor: theme.palette.blue.first,
-              color: theme.palette.white.first,
-              fontWeight: 'bold',
-              "&:hover": {
-                backgroundColor: theme.palette.blue.first,
-              },
-              marginTop: '30px',
-              marginLeft: '30px'
-            }}
-          >
-            Ajouter un utilisateur
-          </Button>
-
-          <Button
-            onClick={() => exportAllToPDF(utilisateurs)}
-            variant="contained"
-            sx={{
-              backgroundColor: theme.palette.blue.first,
-              color: theme.palette.white.first,
-              fontWeight: 'bold',
-              "&:hover": {
-                backgroundColor: theme.palette.blue.first,
-              },
-              marginTop: '30px',
-              marginLeft: '20px'
-            }}
-          >
-            Exporter PDF
-          </Button>
-
-          <Button
-            onClick={() => exportAllToHTML(utilisateurs)}
-            variant="contained"
-            sx={{
-              backgroundColor: theme.palette.blue.first,
-              color: theme.palette.white.first,
-              fontWeight: 'bold',
-              "&:hover": {
-                backgroundColor: theme.palette.blue.first,
-              },
-              marginTop: '30px',
-              marginLeft: '20px'
-            }}
-          >
-            Exporter HTML
-          </Button>
-
-          <Button
-            onClick={() => exportAllToCSV(utilisateurs)}
-            variant="contained"
-            sx={{
-              backgroundColor: theme.palette.blue.first,
-              color: theme.palette.white.first,
-              fontWeight: 'bold',
-              "&:hover": {
-                backgroundColor: theme.palette.blue.first,
-              },
-              marginTop: '30px',
-              marginLeft: '20px'
-            }}
-          >
-            Exporter CSV
-          </Button>
-        </Grid>
+      <Grid container spacing={2} ml={1.5} mt={3.8}>
+      <Grid item>
+        <Button
+          onClick={handleOpenModal}
+          variant="contained"
+          sx={{ 
+            backgroundColor: theme.palette.blue.first, 
+            color: theme.palette.white.first, 
+            fontWeight: 'bold' 
+          }}
+        >
+          Ajouter un utilisateur
+        </Button>
+      </Grid>
+      <Grid item>
+        <Button
+          onClick={() => exportAllToPDF(utilisateurs)}
+          variant="contained"
+          sx={{ 
+            backgroundColor: theme.palette.blue.first, 
+            color: theme.palette.white.first, 
+            fontWeight: 'bold' 
+          }}
+        >
+          Exporter PDF
+        </Button>
+      </Grid>
+      <Grid item>
+        <Button
+          onClick={() => exportAllToHTML(utilisateurs)}
+          variant="contained"
+          sx={{ 
+            backgroundColor: theme.palette.blue.first, 
+            color: theme.palette.white.first, 
+            fontWeight: 'bold' 
+          }}
+        >
+          Exporter HTML
+        </Button>
+      </Grid>
+      <Grid item>
+        <Button
+          onClick={() => exportAllToCSV(utilisateurs)}
+          variant="contained"
+          sx={{ 
+            backgroundColor: theme.palette.blue.first, 
+            color: theme.palette.white.first, 
+            fontWeight: 'bold' 
+          }}
+        >
+          Exporter CSV
+        </Button>
+      </Grid>
+    </Grid>
 
         <Grid item xs={12}>
           <Paper sx={{ p: 4, boxShadow: 'none' }}>
-            <Box style={{ height: 449, width: '100%' }}>
+            <Box style={{ height: 429, width: '100%' }}>
               <DataGrid
                 rows={utilisateurs}
                 columns={columns}
@@ -411,7 +396,6 @@ const UtilisateurManagement = () => {
                   inputProps={{
                     pattern: "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$",
                   }}
-                  helperText="Veuillez entrer une adresse email valide."
                 />
               </Grid>
               <Grid item xs={12}>

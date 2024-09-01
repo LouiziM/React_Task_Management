@@ -120,7 +120,7 @@ export const tacheApiSlice = apiSlice.injectEndpoints({
       }),
       transformResponse: (response) => {
         console.log("Transformed Response:", response);
-        return response.map((tache) => ({ ...tache, id: tache.TacheID }));
+        return response.map((tache) => ({ ...tache, id: tache.DetailsTacheID }));
       },
     }),
     createDetailsTache: builder.mutation({

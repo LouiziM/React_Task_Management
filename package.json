@@ -36,6 +36,7 @@
     "moment-timezone": "^0.5.45",
     "notistack": "^3.0.1",
     "os-browserify": "^0.3.0",
+    "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
     "react-big-calendar": "^1.13.1",

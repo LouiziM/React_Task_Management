@@ -169,7 +169,7 @@ const TachesManagement = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-    
+
         // Check if all fields are non-null
         const { LibelleTache, Coefficient, Remarques } = tacheData;
         if (!LibelleTache || !Coefficient || !Remarques) {
@@ -177,7 +177,7 @@ const TachesManagement = () => {
             onHandleNormalError('Tous les champs doivent être remplis.');
             return;
         }
-    
+
         try {
             if (editTache) {
                 await updateTache(tacheData).unwrap();
@@ -192,7 +192,7 @@ const TachesManagement = () => {
             setOpenModal(false);
         }
     };
-    
+
 
     const columns = [
         {
@@ -234,7 +234,7 @@ const TachesManagement = () => {
         {
             field: 'actions',
             headerName: 'Actions',
-            width:130,
+            width: 130,
             sortable: false,
             align: "center",
             disableColumnMenu: true,
@@ -264,23 +264,63 @@ const TachesManagement = () => {
     return (
         <Box theme={theme}>
             <Grid container spacing={0}>
-                <Grid item xs={12}>
-                    <Button onClick={handleAddTacheClick} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '30px' }}>
-                        Ajouter une tache
-                    </Button>
-                    <Button onClick={() => exportAllToPDF(taches)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }}>
-                        Exporter PDF
-                    </Button>
-                    <Button onClick={() => exportAllToHTML(taches)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }}>
-                        Exporter HTML
-                    </Button>
-                    <Button onClick={() => exportAllToCSV(taches)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }}>
-                        Exporter CSV
-                    </Button>
+                <Grid container spacing={2} ml={1.5} mt={3.8}>
+                    <Grid item>
+                        <Button
+                            onClick={handleAddTacheClick}
+                            variant="contained"
+                            sx={{
+                                backgroundColor: theme.palette.blue.first,
+                                color: theme.palette.white.first,
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Ajouter une tache
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            onClick={() => exportAllToPDF(taches)}
+                            variant="contained"
+                            sx={{
+                                backgroundColor: theme.palette.blue.first,
+                                color: theme.palette.white.first,
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Exporter PDF
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            onClick={() => exportAllToHTML(taches)}
+                            variant="contained"
+                            sx={{
+                                backgroundColor: theme.palette.blue.first,
+                                color: theme.palette.white.first,
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Exporter HTML
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            onClick={() => exportAllToCSV(taches)}
+                            variant="contained"
+                            sx={{
+                                backgroundColor: theme.palette.blue.first,
+                                color: theme.palette.white.first,
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            Exporter CSV
+                        </Button>
+                    </Grid>
                 </Grid>
                 <Grid item xs={12}>
                     <Paper sx={{ p: 4, boxShadow: 'none' }}>
-                        <Box style={{ height: 449, width: '100%' }}>
+                        <Box style={{ height: 429, width: '100%' }}>
                             <DataGrid
                                 rows={taches}
                                 columns={columns}
@@ -336,7 +376,7 @@ const TachesManagement = () => {
                             />
                         </DialogContent>
                         <DialogActions>
-                           
+
 
                             <Button
                                 onClick={handleFormSubmit}
@@ -400,4 +440,3 @@ function QuickSearchToolbar() {
 }
 
 
- 

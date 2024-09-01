@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from "react";
 import { DataGrid, GridLogicOperator, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import SnackbarComponent from "../../components/misc/snackBar";
 import { frFR } from "@mui/x-data-grid/locales";
 import { useDeleteEnteteTacheMutation, useGetAllEntetesTachesQuery, useUpdateEnteteTacheMutation, useCreateEnteteTacheMutation } from '../../features/tacheApiSlice';
@@ -34,49 +35,61 @@ import jsPDF from 'jspdf';
 import { saveAs } from 'file-saver';
 import { parse } from 'json2csv';
 import AssignTaskDialog from './misc/assignTaskDialog';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import TachesParEntete from "./misc/tachesParEntete";
+import Papa from 'papaparse';
 
 dayjs.extend(utc);
 dayjs.extend(localizedFormat);
 
-dayjs.extend(utc);
+// Helper function to format dates
+const formatDate = (dateString) => {
+    return dayjs(dateString).format('YYYY-MM-DD à HH:mm');
+};
+
+const generateRandomNumber = () => Math.floor(1000 + Math.random() * 9000);
 
 const exportToPDF = (row) => {
+    const randomNumber = generateRandomNumber();
     const doc = new jsPDF();
     doc.text("Détails de la tâche", 20, 20);
     doc.autoTable({
         startY: 30,
         head: [['Libellé Journée', 'Date d\'Opération', 'Remarques', 'Utilisateur']],
-        body: [[row.LibelleJournee, row.DateOperation, row.Remarques, row.Utilisateur]]
+        body: [[
+            row.LibelleJournee,
+            formatDate(row.DateOperation),
+            row.Remarques,
+            row.Utilisateur
+        ]]
     });
     doc.text("Signature", 20, doc.lastAutoTable.finalY + 30);
     doc.text("Date", 150, doc.lastAutoTable.finalY + 30);
-    doc.save(`${row.LibelleJournee}_details.pdf`);
+    doc.save(`Entete-Tache_${randomNumber}.pdf`);
 };
 
 const exportAllToPDF = (rows) => {
+    const randomNumber = generateRandomNumber();
     const doc = new jsPDF();
-    doc.text("Liste des Tâches", 20, 20);
+    doc.text("Liste des Entêtes-Tâches", 20, 20);
     doc.autoTable({
         startY: 30,
         head: [['Libellé Journée', 'Date d\'Opération', 'Remarques', 'Utilisateur']],
         body: rows.map(row => [
             row.LibelleJournee,
-            row.DateOperation,
+            formatDate(row.DateOperation),
             row.Remarques,
-            row.UtilisateurNom  
+            row.UtilisateurNom
         ])
     });
-    doc.save(`taches_details.pdf`);
+    doc.save(`Liste_des_Entetes-Taches_${randomNumber}.pdf`);
 };
 
-
 const exportAllToHTML = (rows) => {
+    const randomNumber = generateRandomNumber();
     const htmlContent = `
     <html>
       <head>
-        <title>Liste des Tâches</title>
+        <title>Liste des Entêtes-Tâches</title>
         <style>
           table { width: 100%; border-collapse: collapse; }
           th, td { border: 1px solid black; padding: 8px; text-align: left; }
@@ -84,13 +97,13 @@ const exportAllToHTML = (rows) => {
         </style>
       </head>
       <body>
-        <h2>Liste des Tâches</h2>
+        <h2>Liste des Entêtes-Tâches</h2>
         <table>
           <tr><th>Libellé Journée</th><th>Date d'Opération</th><th>Remarques</th><th>Utilisateur</th></tr>
           ${rows.map(row => `
             <tr>
               <td>${row.LibelleJournee}</td>
-              <td>${row.DateOperation}</td>
+              <td>${formatDate(row.DateOperation)}</td> <!-- Format the date here -->
               <td>${row.Remarques}</td>
               <td>${row.UtilisateurNom}</td>
             </tr>
@@ -102,19 +115,27 @@ const exportAllToHTML = (rows) => {
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `taches_details.html`;
+    link.download = `Liste_des_Entetes-Taches_${randomNumber}.html`;
     link.click();
 };
 
-
 const exportAllToCSV = (rows) => {
-    const fields = ['LibelleJournee', 'DateOperation', 'Remarques', 'UtilisateurNom']; 
-  const opts = { fields, delimiter: ';' };
-    const csv = parse(rows, opts);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'taches_details.csv');
-};
+    const randomNumber = generateRandomNumber();
+    const fields = ['LibelleJournee', 'DateOperation', 'Remarques', 'UtilisateurNom'];
 
+    try {
+        // Convert rows to CSV format using PapaParse
+        const csv = Papa.unparse(rows, { header: true, delimiter: ';' });
+
+        // Create a Blob with UTF-8 encoding
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+        // Use saveAs to prompt the user to download the CSV file
+        saveAs(blob, `Liste_des_Entetes-Taches_${randomNumber}_details.csv`);
+    } catch (err) {
+        console.error('Error exporting to CSV:', err);
+    }
+};
 
 const GestionTaches = () => {
     const theme = useTheme();
@@ -127,11 +148,12 @@ const GestionTaches = () => {
     const { data: utilisateurs = [], isLoading: isLoadingUtilisateurs } = useGetAllUtilisateursQuery();
     const [createEnteteTache] = useCreateEnteteTacheMutation();
     const [tacheDenteteopen, setTacheDenteteopen] = useState(null);
+    const [tacheDenteteopenData,setTacheDenteteopenData]=useState(null);
     const [updateEnteteTache] = useUpdateEnteteTacheMutation();
     const [deleteEnteteTache] = useDeleteEnteteTacheMutation();
     const [selectedTaskForAssignment, setSelectedTaskForAssignment] = useState(null);
 
-    console.log("selectedTaskForAssignment",selectedTaskForAssignment)
+    console.log("selectedTaskForAssignment", selectedTaskForAssignment)
 
     const [snackbarState, setSnackbarState] = useState({
         open: false,
@@ -274,7 +296,7 @@ const GestionTaches = () => {
         { field: 'Remarques', headerName: 'Remarques', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Remarques}>{row.Remarques}</CustomTooltip>) },
         { field: 'Utilisateur', headerName: 'Utilisateur', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.UtilisateurNom}>{row.UtilisateurNom}</CustomTooltip>) },
         {
-            field: 'actions', headerName: 'Actions', width:190, align: 'center', headerClassName: 'bold-weight',
+            field: 'actions', headerName: 'Actions', width: 190, align: 'center', headerClassName: 'bold-weight',
             renderCell: ({ row }) => (
                 <Box display="flex" justifyContent="center">
                     <Tooltip title="Editer">
@@ -294,7 +316,9 @@ const GestionTaches = () => {
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Afficher les Tâches">
-                        <IconButton color="info" onClick={() => { setTacheDenteteopen(row.id) }}>
+                        <IconButton color="info" onClick={() => { setTacheDenteteopen(row.id);
+                            setTacheDenteteopenData(row);
+                         }}>
                             <VisibilityIcon />
                         </IconButton>
                     </Tooltip>
@@ -328,18 +352,53 @@ const GestionTaches = () => {
 
 
     return (
-        <Box p={2}>
+        <Box p={4}>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <Box mb={2} display="flex" justifyContent="space-between">
-                       
-                        <Box>
-                            <Button variant="contained" color="secondary" onClick={() => exportAllToPDF(entetestaches)}>Exporter PDF</Button>
-                            <Button variant="contained" color="secondary" sx={{ marginLeft: '15px' }} onClick={() => exportAllToHTML(entetestaches)}>Exporter HTML</Button>
-                            <Button variant="contained" color="secondary" sx={{ marginLeft: '15px' }} onClick={() => exportAllToCSV(entetestaches)}>Exporter CSV</Button>
-                        </Box>
+                    <Box mb={4}>
+                        <Grid container spacing={2} >
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => exportAllToPDF(entetestaches)}
+                                    sx={{
+                                        backgroundColor: theme.palette.blue.first,
+                                        color: theme.palette.white.first,
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Exporter PDF
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => exportAllToHTML(entetestaches)}
+                                    sx={{
+                                        backgroundColor: theme.palette.blue.first,
+                                        color: theme.palette.white.first,
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Exporter HTML
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => exportAllToCSV(entetestaches)}
+                                    sx={{
+                                        backgroundColor: theme.palette.blue.first,
+                                        color: theme.palette.white.first,
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Exporter CSV
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Box>
-                    <div style={{ height: 473, width: '100%' }}>
+                    <div style={{ height: 440, width: '100%' }}>
                         <DataGrid
                             rows={entetestaches}
                             columns={columns}
@@ -458,7 +517,7 @@ const GestionTaches = () => {
             <Dialog open={tacheDenteteopen !== null} onClose={handleCloseTachesParEnteteModal} maxWidth="md" fullWidth>
                 <DialogTitle>Liste des Tâches</DialogTitle>
                 <DialogContent>
-                    <TachesParEntete enteteId={tacheDenteteopen} />
+                    <TachesParEntete enteteId={tacheDenteteopen} entete={tacheDenteteopenData} />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseTachesParEnteteModal} color="primary" sx={{

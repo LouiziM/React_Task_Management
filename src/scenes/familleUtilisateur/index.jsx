@@ -86,8 +86,8 @@ const exportAllToCSV = (rows) => {
   }));
 
   const fields = ['LibelleFamille', 'Coefficient', 'Remarques'];
-  const opts = { fields, delimiter: ';'  };
-  
+  const opts = { fields, delimiter: ';' };
+
   try {
     const csv = parse(formattedRows, opts);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -111,8 +111,8 @@ const FamilyManagement = () => {
     severity: 'success',
     message: '',
   });
-  
-  
+
+
   const onHandleNormalError = (errorMessage) => {
     setSnackbarState({
       open: true,
@@ -216,7 +216,7 @@ const FamilyManagement = () => {
     { field: 'Coefficient', headerName: 'Coefficient', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Coefficient}>{row.Coefficient}</CustomTooltip>) },
     { field: 'Remarques', headerName: 'Remarques', flex: 1, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (<CustomTooltip title={row.Remarques}>{row.Remarques}</CustomTooltip>) },
     {
-      field: 'actions', headerName: 'Actions', width:130, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (
+      field: 'actions', headerName: 'Actions', width: 130, align: 'center', headerClassName: 'bold-weight', renderCell: ({ row }) => (
         <>
           <Tooltip title="Modifier la famille" placement="top">
             <IconButton onClick={() => {
@@ -258,23 +258,63 @@ const FamilyManagement = () => {
   return (
     <div>
       <Grid container spacing={0}>
-        <Grid item xs={12}>
-          <Button onClick={handleOpenModal} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '30px' }} >
-            Ajouter une famille
-          </Button>
-          <Button onClick={() => exportAllToPDF(families)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }} >
-            Exporter PDF
-          </Button>
-          <Button onClick={() => exportAllToHTML(families)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }} >
-            Exporter HTML
-          </Button>
-          <Button onClick={() => exportAllToCSV(families)} variant="contained" sx={{ backgroundColor: theme.palette.blue.first, color: theme.palette.white.first, fontWeight: 'bold', marginTop: '30px', marginLeft: '20px' }} >
-            Exporter CSV
-          </Button>
+        <Grid container spacing={2} ml={1.5} mt={3.8}>
+          <Grid item>
+            <Button
+              onClick={handleOpenModal}
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.blue.first,
+                color: theme.palette.white.first,
+                fontWeight: 'bold'
+              }}
+            >
+              Ajouter une famille
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => exportAllToPDF(families)}
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.blue.first,
+                color: theme.palette.white.first,
+                fontWeight: 'bold'
+              }}
+            >
+              Exporter PDF
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => exportAllToHTML(families)}
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.blue.first,
+                color: theme.palette.white.first,
+                fontWeight: 'bold'
+              }}
+            >
+              Exporter HTML
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              onClick={() => exportAllToCSV(families)}
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.blue.first,
+                color: theme.palette.white.first,
+                fontWeight: 'bold'
+              }}
+            >
+              Exporter CSV
+            </Button>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <Paper sx={{ p: 4, boxShadow: 'none' }}>
-            <Box style={{ height: 449, width: '100%' }}>
+            <Box style={{ height: 429, width: '100%' }}>
               <DataGrid
                 rows={families}
                 columns={columns}
