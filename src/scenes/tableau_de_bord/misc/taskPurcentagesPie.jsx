@@ -15,11 +15,11 @@ const TaskPurcentagesPie = () => {
     if (isLoading) {
         return <p>Loading...</p>; 
     }
-    const dataSets = data.map(item => ({
+    const dataSets = data?.map(item => ({
         id: item.TaskName,
         label: item.TaskName,
-        value: item.TaskPercentage.toFixed(2), 
-    }));
+        value: item.TaskPercentage.toFixed(2),
+    })) || []; 
 
     return (
         <Grid item rowSpacing={1} xs={12} sm={12} md={6} lg={6} xl={6} sx={{ height: "380px", borderRadius: '15px', display: "flex" }}>
@@ -41,7 +41,6 @@ const TaskPurcentagesPie = () => {
                         cornerRadius={3}
                         activeOuterRadiusOffset={8}
                         enableArcLinkLabels={false}
-
                         borderWidth={1}
                         borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                         arcLinkLabelsSkipAngle={10}
